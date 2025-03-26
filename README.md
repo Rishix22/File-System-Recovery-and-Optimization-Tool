@@ -10,10 +10,13 @@ This is a simple **File System Recovery and Optimization Tool** implemented in P
 - **Defragmentation**: Optimize storage by reorganizing file allocations.
 - **Backup System**: Save the current file system state for recovery.
 - **Restore System**: Recover the file system from a saved backup.
+- **Block Allocation Management**: Efficiently allocate and deallocate storage blocks.
+- **Simulated Disk Storage**: Emulates a real-world file system structure.
 
 ## Installation & Usage
 ### Prerequisites
 - Python 3.x
+- No additional dependencies required
 
 ### Running the Tool
 1. Clone the repository:
@@ -38,9 +41,22 @@ fs.restore_system()
 fs.read_file("file2")
 ```
 
+## How It Works
+- **File Creation**: The system finds available storage blocks and assigns them to the new file.
+- **File Reading**: Retrieves stored content by accessing allocated blocks.
+- **File Deletion**: Releases occupied blocks back into the free-space pool.
+- **Defragmentation**: Rearranges files to improve read/write efficiency.
+- **Backup & Restore**: Uses serialization to store and recover file system states.
+
 ## Contributing
-Feel free to fork the repository, create a new branch, and submit a pull request!
+Feel free to fork the repository, create a new branch, and submit a pull request! If you find any issues, report them under the repository's **Issues** section.
 
 ## License
 This project is licensed under the MIT License.
+
+## Future Improvements
+- Implement a GUI for easier user interaction.
+- Add encryption for file security.
+- Support for hierarchical directory structures.
+- Implement file permissions and access control.
 
