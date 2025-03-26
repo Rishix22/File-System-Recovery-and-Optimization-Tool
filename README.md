@@ -1,4 +1,4 @@
-# File System Recovery and Optimization Too
+# File System Recovery and Optimization Tool
 
 ## Overview
 This is a simple **File System Recovery and Optimization Tool** implemented in Python. It simulates a basic file system with functionalities for file creation, deletion, reading, defragmentation, and backup/restore operations.
