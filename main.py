@@ -5,25 +5,29 @@ class FileSystem:
     def __init__(self, disk_size=100):
         self.disk_size = disk_size  # Total blocks on disk
         self.bitmap = [0] * disk_size  # Free-space management (0=free, 1=occupied)
-        self.directory = {}  # Directory structure {filename: (start_block, size)}
-        self.storage = [None] * disk_size  # Simulated disk storage
+        self.directory = {}  # Directory structure {filename: (start_block, size, content)}
 
-    def create_file(self, filename, size, content):
+    def allocate_blocks(self, size):
+        free_blocks = [i for i, b in enumerate(self.bitmap) if b == 0]
+        if len(free_blocks) < size:
+            return None  # Not enough space
+        allocated = free_blocks[:size]
+        for block in allocated:
+            self.bitmap[block] = 1
+        return allocated
+
+    def create_file(self, filename, content):
         if filename in self.directory:
             print(f"Error: File '{filename}' already exists.")
             return
         
-        free_blocks = [i for i, b in enumerate(self.bitmap) if b == 0]
-        if len(free_blocks) < size:
+        size = len(content)
+        allocated_blocks = self.allocate_blocks(size)
+        if not allocated_blocks:
             print("Error: Not enough space.")
             return
         
-        start_block = free_blocks[0]
-        for i in range(size):
-            self.bitmap[free_blocks[i]] = 1
-            self.storage[free_blocks[i]] = content[i] if i < len(content) else ' '
-        
-        self.directory[filename] = (start_block, size)
+        self.directory[filename] = (allocated_blocks, content)
         print(f"File '{filename}' created successfully.")
 
     def read_file(self, filename):
@@ -31,8 +35,7 @@ class FileSystem:
             print(f"Error: File '{filename}' not found.")
             return
         
-        start, size = self.directory[filename]
-        content = ''.join(self.storage[start:start + size])
+        _, content = self.directory[filename]
         print(f"Contents of '{filename}': {content}")
 
     def delete_file(self, filename):
@@ -40,51 +43,51 @@ class FileSystem:
             print(f"Error: File '{filename}' not found.")
             return
         
-        start, size = self.directory[filename]
-        for i in range(start, start + size):
-            self.bitmap[i] = 0
-            self.storage[i] = None
+        allocated_blocks, _ = self.directory[filename]
+        for block in allocated_blocks:
+            self.bitmap[block] = 0
         
         del self.directory[filename]
         print(f"File '{filename}' deleted successfully.")
 
-    def simulate_crash(self):
-        print("Simulating disk crash... Saving backup...")
-        with open("backup.fs", "wb") as f:
-            pickle.dump((self.bitmap, self.directory, self.storage), f)
-        print("Backup successfully saved.")
-
-    def recover_system(self):
-        if not os.path.exists("backup.fs"):
-            print("No backup found. Recovery failed.")
-            return
-        
-        with open("backup.fs", "rb") as f:
-            self.bitmap, self.directory, self.storage = pickle.load(f)
-        print("System successfully recovered from backup.")
-
-    def optimize_disk(self):
-        print("Optimizing disk by defragmentation...")
-        new_storage = [None] * self.disk_size
-        new_bitmap = [0] * self.disk_size
+    def defragment(self):
+        print("Performing disk defragmentation...")
         new_directory = {}
+        new_bitmap = [0] * self.disk_size
         next_free_block = 0
 
-        for filename, (start, size) in self.directory.items():
-            new_directory[filename] = (next_free_block, size)
+        for filename, (blocks, content) in self.directory.items():
+            size = len(content)
+            new_blocks = list(range(next_free_block, next_free_block + size))
+            new_directory[filename] = (new_blocks, content)
             for i in range(size):
-                new_storage[next_free_block] = self.storage[start + i]
-                new_bitmap[next_free_block] = 1
-                next_free_block += 1
+                new_bitmap[new_blocks[i]] = 1
+            next_free_block += size
         
-        self.storage, self.bitmap, self.directory = new_storage, new_bitmap, new_directory
-        print("Disk optimization complete. Files defragmented.")
+        self.directory = new_directory
+        self.bitmap = new_bitmap
+        print("Disk defragmentation complete.")
+
+    def backup_system(self):
+        with open("filesystem_backup.pickle", "wb") as f:
+            pickle.dump((self.bitmap, self.directory), f)
+        print("System backup saved.")
+
+    def restore_system(self):
+        if not os.path.exists("filesystem_backup.pickle"):
+            print("No backup found.")
+            return
+        
+        with open("filesystem_backup.pickle", "rb") as f:
+            self.bitmap, self.directory = pickle.load(f)
+        print("System restored from backup.")
 
 # Example Usage
 fs = FileSystem()
-fs.create_file("file1", 5, "hello")
+fs.create_file("file1", "hello")
+fs.create_file("file2", "world")
 fs.read_file("file1")
-fs.simulate_crash()
-fs.recover_system()
-fs.optimize_disk()
-fs.read_file("file1")
+fs.defragment()
+fs.backup_system()
+fs.restore_system()
+fs.read_file("file2")
