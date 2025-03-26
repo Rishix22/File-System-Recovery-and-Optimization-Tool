@@ -49,22 +49,22 @@ class FileSystem:
         print(f"File '{filename}' deleted successfully.")
 
     def simulate_crash(self):
-        print("Simulating disk crash...")
+        print("Simulating disk crash... Saving backup...")
         with open("backup.fs", "wb") as f:
             pickle.dump((self.bitmap, self.directory, self.storage), f)
-        print("Backup saved.")
+        print("Backup successfully saved.")
 
     def recover_system(self):
         if not os.path.exists("backup.fs"):
-            print("No backup found.")
+            print("No backup found. Recovery failed.")
             return
         
         with open("backup.fs", "rb") as f:
             self.bitmap, self.directory, self.storage = pickle.load(f)
-        print("System recovered from backup.")
+        print("System successfully recovered from backup.")
 
     def optimize_disk(self):
-        print("Optimizing disk...")
+        print("Optimizing disk by defragmentation...")
         new_storage = [None] * self.disk_size
         new_bitmap = [0] * self.disk_size
         new_directory = {}
@@ -78,7 +78,7 @@ class FileSystem:
                 next_free_block += 1
         
         self.storage, self.bitmap, self.directory = new_storage, new_bitmap, new_directory
-        print("Disk optimization complete.")
+        print("Disk optimization complete. Files defragmented.")
 
 # Example Usage
 fs = FileSystem()
