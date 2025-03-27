@@ -82,12 +82,4 @@ class FileSystem:
             self.bitmap, self.directory = pickle.load(f)
         print("System restored from backup.")
 
-# Example Usage
-fs = FileSystem()
-fs.create_file("file1", "hello")
-fs.create_file("file2", "world")
-fs.read_file("file1")
-fs.defragment()
-fs.backup_system()
-fs.restore_system()
-fs.read_file("file2")
+
