@@ -72,6 +72,12 @@
             border-left: 4px solid #3498db;
         }
 
+        #file-list li.empty {
+            background-color: #f1f1f1;
+            color: #aaa;
+            font-style: italic;
+        }
+
         .operation-form {
             margin-bottom: 20px;
             padding: 15px;
@@ -137,7 +143,7 @@
             <div class="file-list">
                 <h2>Files</h2>
                 <ul id="file-list">
-                    <!-- Files will be listed here -->
+                    <li class="empty">No files available</li> <!-- Added default message when no files are present -->
                 </ul>
             </div>
         </div>
@@ -155,7 +161,7 @@
             <div class="operation-form">
                 <h3>Read File</h3>
                 <select id="read-filename">
-                    <!-- File options will be added here -->
+                    <option value="">No files available</option> <!-- This option will show if there are no files -->
                 </select>
                 <button onclick="readFile()">Read File</button>
                 <div id="file-content-display"></div>
@@ -164,7 +170,7 @@
             <div class="operation-form">
                 <h3>Delete File</h3>
                 <select id="delete-filename">
-                    <!-- File options will be added here -->
+                    <option value="">No files available</option> <!-- This option will show if there are no files -->
                 </select>
                 <button onclick="deleteFile()">Delete File</button>
             </div>
@@ -252,6 +258,7 @@
             defragment() {
                 const newDirectory = {};
                 const newBitmap = new Array(this.disk_size).fill(0);
+                let nextFree
                 let nextFreeBlock = 0;
 
                 for (const filename in this.directory) {
@@ -351,11 +358,18 @@
             
             // Update file list display
             fileListUl.innerHTML = '';
-            files.forEach(filename => {
+            if (files.length === 0) {
                 const li = document.createElement('li');
-                li.textContent = filename;
+                li.className = 'empty';
+                li.textContent = 'No files available';
                 fileListUl.appendChild(li);
-            });
+            } else {
+                files.forEach(filename => {
+                    const li = document.createElement('li');
+                    li.textContent = filename;
+                    fileListUl.appendChild(li);
+                });
+            }
             
             // Update dropdowns
             readFilenameSelect.innerHTML = '';
